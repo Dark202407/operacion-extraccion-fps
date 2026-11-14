@@ -1,0 +1,132 @@
+/* =====================================================================
+   Operación Extracción — estilos del HUD y de las pantallas
+   ===================================================================== */
+:root{
+  --amber:#ffb641;
+  --amber-dim:#8a5f1f;
+  --red:#ff3b30;
+  --green:#61e08b;
+  --ink:#e9e4da;
+  --panel:rgba(10,11,12,.72);
+  --mono:'Consolas','SFMono-Regular','Menlo',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#07080a;color:var(--ink);
+  font-family:'Trebuchet MS','Segoe UI',system-ui,sans-serif;user-select:none;cursor:default}
+canvas{display:block}
+.hidden{display:none !important}
+
+/* ---------- HUD ---------- */
+#hud{position:fixed;inset:0;pointer-events:none;z-index:20}
+#hud-top{position:absolute;top:18px;left:22px;right:22px;display:flex;justify-content:space-between;
+  align-items:flex-start;gap:20px;font-family:var(--mono);font-size:12px;letter-spacing:.08em}
+.tag{display:block;color:var(--amber-dim);font-size:10px;letter-spacing:.22em;margin-bottom:4px}
+#objective{background:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,0));padding:6px 26px 6px 10px;
+  border-left:2px solid var(--amber);max-width:52vw}
+#objective-text{color:var(--ink);text-transform:uppercase}
+#zombies-left{text-align:right;background:linear-gradient(270deg,rgba(0,0,0,.55),rgba(0,0,0,0));
+  padding:6px 10px 6px 26px;border-right:2px solid var(--red)}
+#zombies-count{font-size:18px;color:#fff}
+
+#hud-bottom{position:absolute;bottom:20px;left:22px;right:22px;display:flex;justify-content:space-between;
+  align-items:flex-end;gap:16px}
+#ammo-panel{background:var(--panel);border:1px solid rgba(255,182,65,.25);border-left:3px solid var(--amber);
+  padding:9px 16px 10px;min-width:190px;backdrop-filter:blur(3px)}
+#weapon-name{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--amber)}
+#ammo-line{font-family:var(--mono);line-height:1;margin-top:2px}
+#ammo{font-size:38px;font-weight:700}
+#ammo-sep{font-size:18px;color:var(--amber-dim);margin:0 4px}
+#ammo-reserve{font-size:18px;color:#b9b2a6}
+#ammo.empty #ammo{color:var(--red)}
+#ammo-note{font-size:10px;letter-spacing:.14em;color:#8d8579;margin-top:3px;font-family:var(--mono)}
+
+#weapon-slots{display:flex;gap:8px}
+.slot{background:var(--panel);border:1px solid rgba(255,255,255,.10);padding:7px 12px;display:flex;
+  align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+  color:#8d8579;opacity:.65;transition:.15s}
+.slot b{display:inline-flex;width:18px;height:18px;border:1px solid currentColor;align-items:center;
+  justify-content:center;font-size:10px}
+.slot.active{opacity:1;color:var(--amber);border-color:rgba(255,182,65,.55);
+  box-shadow:0 0 16px rgba(255,182,65,.18) inset}
+
+#health-panel{width:220px;background:var(--panel);border:1px solid rgba(255,255,255,.08);
+  padding:8px 12px;border-right:3px solid var(--green)}
+#health-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:#8d8579;margin-bottom:5px}
+#health-bar{height:7px;background:rgba(255,255,255,.10);overflow:hidden}
+#health-fill{display:block;height:100%;width:100%;background:linear-gradient(90deg,#2f9e57,var(--green));
+  transition:width .18s linear}
+#health-fill.low{background:linear-gradient(90deg,#8d1e17,var(--red))}
+
+#damage-flash{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(255,0,0,0) 42%,rgba(180,0,0,.72) 100%);
+  opacity:0;transition:opacity .45s ease-out}
+#hit-marker{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.6);
+  color:#ff5a4a;font-size:26px;opacity:0;font-family:var(--mono);text-shadow:0 0 8px #000}
+#hit-marker.show{animation:marker .26s ease-out}
+@keyframes marker{0%{opacity:1;transform:translate(-50%,-50%) scale(.55)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.25)}}
+
+#pickup-toast{position:absolute;left:50%;top:24%;transform:translateX(-50%);font-family:var(--mono);
+  font-size:13px;letter-spacing:.18em;color:var(--amber);opacity:0;transition:opacity .25s;text-align:center;
+  text-shadow:0 2px 10px #000}
+#pickup-toast.show{opacity:1}
+
+/* ---------- mira ---------- */
+#crosshair{position:fixed;left:50%;top:50%;width:26px;height:26px;transform:translate(-50%,-50%);
+  z-index:19;pointer-events:none;opacity:.9}
+#crosshair i{position:absolute;background:rgba(255,255,255,.85);box-shadow:0 0 3px rgba(0,0,0,.9)}
+#crosshair i:nth-child(1){left:50%;top:0;width:2px;height:8px;margin-left:-1px}
+#crosshair i:nth-child(2){left:50%;bottom:0;width:2px;height:8px;margin-left:-1px}
+#crosshair i:nth-child(3){top:50%;left:0;height:2px;width:8px;margin-top:-1px}
+#crosshair i:nth-child(4){top:50%;right:0;height:2px;width:8px;margin-top:-1px}
+
+/* ---------- pantallas ---------- */
+.screen{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 40%,rgba(30,20,10,.55),rgba(3,4,5,.94) 70%),rgba(3,4,5,.6);
+  backdrop-filter:blur(2px)}
+#screen-start{background:radial-gradient(ellipse at 62% 45%,rgba(58,40,14,.34),rgba(3,4,5,.93) 68%),rgba(3,4,5,.72)}
+.panel{width:min(720px,92vw);padding:38px 44px;background:rgba(9,10,11,.78);
+  border:1px solid rgba(255,182,65,.22);border-top:2px solid var(--amber);
+  box-shadow:0 30px 90px rgba(0,0,0,.65)}
+.panel.small{width:auto;text-align:center;padding:26px 48px}
+.panel.danger{border-top-color:var(--red);border-color:rgba(255,59,48,.22)}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.32em;color:var(--amber-dim);margin-bottom:14px}
+.eyebrow.ok{color:var(--green)} .eyebrow.bad{color:var(--red)}
+h1{font-size:clamp(34px,5.4vw,62px);line-height:.94;letter-spacing:.02em;font-weight:800;text-transform:uppercase}
+h1 em{font-style:normal;color:var(--amber);letter-spacing:.10em}
+h2{font-size:clamp(28px,4.4vw,44px);letter-spacing:.04em;font-weight:800;text-transform:uppercase}
+.panel.danger h2{color:var(--red);text-shadow:0 0 26px rgba(255,59,48,.45)}
+.panel:not(.danger):not(.small) h2{color:var(--amber)}
+.lead{margin-top:16px;color:#bfb7a9;font-size:15px;line-height:1.6;max-width:58ch}
+.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 22px;margin:24px 0 26px;
+  font-family:var(--mono);font-size:12px}
+.controls div{display:flex;justify-content:space-between;gap:10px;padding:7px 10px;
+  background:rgba(255,255,255,.035);border-left:2px solid rgba(255,182,65,.5)}
+.controls b{color:var(--amber);letter-spacing:.08em;white-space:nowrap}
+.controls span{color:#9a9387;text-align:right}
+.btn{font-family:var(--mono);font-size:13px;letter-spacing:.24em;color:#120c02;background:var(--amber);
+  border:0;padding:14px 34px;cursor:pointer;font-weight:700;transition:.15s}
+.btn:hover{background:#ffc768;transform:translateY(-1px)}
+.btn:disabled{background:#4a4a4a;color:#222;cursor:wait}
+.panel.danger .btn{background:var(--red);color:#fff}
+.panel.danger .btn:hover{background:#ff6d63}
+.hint{margin-top:14px;font-size:11px;color:#6f6a62;font-family:var(--mono);letter-spacing:.06em}
+#load-status{margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--amber-dim);letter-spacing:.1em}
+.stats{list-style:none;margin:22px 0 26px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;
+  display:grid;grid-template-columns:1fr 1fr;gap:6px 26px;color:#b0a99d}
+.stats li{display:flex;justify-content:space-between;border-bottom:1px dotted rgba(255,255,255,.12);padding:5px 0}
+.stats b{color:var(--ink)}
+
+/* ---------- carga ---------- */
+#loading{position:fixed;inset:0;z-index:60;background:#07080a;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:14px;font-family:var(--mono);font-size:11px;
+  letter-spacing:.24em;color:var(--amber-dim)}
+#loading .bar{width:220px;height:2px;background:rgba(255,182,65,.15);overflow:hidden}
+#loading .bar i{display:block;height:100%;width:40%;background:var(--amber);animation:load 1.1s infinite ease-in-out}
+@keyframes load{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
+
+/* ---------- aviso de pantalla pequeña ---------- */
+@media (max-width:640px){
+  .controls{grid-template-columns:1fr}
+  #health-panel{width:130px}
+  #ammo-panel{min-width:140px}
+  #ammo{font-size:28px}
+}
