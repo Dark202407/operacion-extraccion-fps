@@ -1,116 +1,164 @@
 # Operación Extracción: Sobrevive al apocalipsis
 
-Videojuego 3D de disparos en primera persona (FPS), desarrollado con **JavaScript** y **Three.js (WebGL)**. El jugador debe recorrer un escenario urbano, enfrentarse a zombis, administrar la munición de dos armas y llegar a la zona segura de extracción.
+> **Repositorio del proyecto (código fuente, recursos y dependencias):**
+> https://github.com/Dark202407/operacion-extraccion-fps
+>
+> **Juego en línea (GitHub Pages):**
+> https://dark202407.github.io/operacion-extraccion-fps/
+>
+> Enlace directo al juego publicado desde la raíz del repositorio:
+> https://dark202407.github.io/operacion-extraccion-fps/index.html
 
-## 1. Contenido del repositorio
+Videojuego de disparos en primera persona (FPS) desarrollado con **Three.js (WebGL)**. Incluye las
+dos armas y los enemigos en formato **GLB / glTF**, escenario tridimensional explorable, cámara en
+primera persona, detección de colisiones, gestión de municiones, comportamiento de persecución de
+los zombis, objetos coleccionables y zona final de extracción.
 
-```text
-operacion-extraccion-fps/
-├── assets/
-│   └── models/
-│       ├── arma1.glb
-│       ├── arma2.glb
-│       └── zombi.glb
+---
+
+## 1. Descripción del juego
+
+El brote arrasó el sector industrial. El jugador es el último operativo dentro del perímetro y debe
+atravesar una calle infestada, un callejón y el mercado administrando su munición, para alcanzar el
+**helipuerto de extracción** al norte del escenario.
+
+**Objetivo:** sobrevivir al recorrido y llegar a la zona segura de extracción.
+
+**Etapas de la misión (RF08)**
+
+| Etapa | Zona | Qué ocurre |
+|---|---|---|
+| Inicio | Base «Sector 7» (z ≈ 0–35) | El jugador aparece con las dos armas y 30 balas en total (12 en la pistola + 18 de reserva; 6 en la escopeta). |
+| Desarrollo | Calle principal → callejón → mercado (z ≈ 35–150) | Tres oleadas de zombis, vehículos y barricadas, cajas de munición, botiquines y potenciador de velocidad. |
+| Final | Helipuerto «H» (z ≈ 150) | Al entrar en el círculo verde se muestra «¡MISIÓN COMPLETADA! Has llegado a la zona de extracción». |
+
+**Condición de derrota (RF09):** si un zombi alcanza al jugador y le quita toda la integridad, aparece
+**GAME OVER** y la partida se detiene (con opción de reintentar).
+
+---
+
+## 2. Estructura del proyecto
+
+```
+OperacionExtraccion/
 ├── index.html
-├── style.css
-├── main.js
-├── README.md
-└── .gitignore
+├── css/style.css
+├── js/
+│   ├── config.js     → munición inicial, munición por caja, rangos, dificultad
+│   ├── audio.js      → efectos de sonido sintetizados
+│   ├── world.js      → escenario 3D, colisiones del mundo y coleccionables
+│   ├── weapons.js    → armas GLB, cambio con 1/2, un disparo por clic
+│   ├── enemies.js    → zombis GLB, IA de detección/persecución y pickups
+│   ├── player.js     → cámara FPS, WASD y colisiones
+│   ├── hud.js        → munición, integridad, avisos y pantallas
+│   └── game.js       → bucle principal, raycasting, victoria/derrota
+├── models/           → pistola.glb, escopeta.glb, zombi.gltf + texturas y buffer
+├── libs/             → three.js, GLTFLoader, SkeletonUtils (locales)
+├── tools_build_models.py → generador de las armas GLB
+└── README.md
 ```
 
-## 2. Requisitos y dependencias
+---
 
-- Navegador actualizado compatible con WebGL y módulos JavaScript (Chrome, Edge o Firefox).
-- Conexión a Internet para cargar Three.js desde un CDN.
-- Servidor web local para ejecutar el proyecto; no abrir directamente como archivo por las restricciones CORS.
-- Three.js **0.160.0**, cargado desde un CDN mediante `importmap`.
-- `PointerLockControls` y `GLTFLoader`, módulos auxiliares de la misma versión de Three.js.
-- No es necesario instalar `node_modules`.
+## 3. Instalación y ejecución
 
-## 3. Instalación y ejecución local
+**Requisitos:** un navegador actual con WebGL 2 (Chrome, Edge o Firefox). No requiere Node,
+compilación ni conexión a internet: las librerías están incluidas en `libs/`.
 
-### Opción A: Visual Studio Code + Live Server
+**Opción A (rápida)** — abrir `index.html` con doble clic.
 
-1. Descarga el repositorio y descomprime los archivos.
-2. Abre la carpeta del proyecto en Visual Studio Code.
-3. Instala la extensión **Live Server**.
-4. Haz clic derecho sobre `index.html` y selecciona **Open with Live Server**.
-5. Pulsa **INICIAR MISIÓN** y permite la captura del cursor.
-
-### Opción B: Python
-
-Desde una terminal abierta en la carpeta del proyecto, ejecuta:
+**Opción B (recomendada)** — servir la carpeta en local y abrir `http://localhost:8000`:
 
 ```bash
-python -m http.server 8080
+python3 -m http.server 8000
+# o
+npx serve .
 ```
 
-Después abre `http://localhost:8080` en el navegador.
+Al cargar se ve la pantalla de inicio: pulsar **INICIAR MISIÓN** y hacer clic sobre el canvas para
+capturar el mouse.
+
+### 3.1 Publicar el repositorio en GitHub
+
+```bash
+cd OperacionExtraccion
+git init
+git add .
+git commit -m "Operación Extracción: FPS en Three.js con armas y zombis GLB"
+git branch -M main
+git remote add origin https://github.com/Dark202407/operacion-extraccion-fps.git
+git push -u origin main
+```
+
+El proyecto está preparado para subirse tal cual: `index.html` debe quedar en la raíz del
+repositorio, no dentro de una subcarpeta.
+
+### 3.2 Publicar el juego en línea (opcional)
+
+`Settings → Pages → Source: Deploy from a branch → Branch: main / (root) → Save`.
+La URL resultante es `https://dark202407.github.io/operacion-extraccion-fps/`.
+
+---
 
 ## 4. Controles
 
-| Tecla / control | Acción |
+| Control | Acción |
 |---|---|
 | W | Avanzar |
 | S | Retroceder |
 | A | Desplazarse a la izquierda |
 | D | Desplazarse a la derecha |
-| Movimiento del mouse | Orientar la cámara y apuntar |
-| Clic izquierdo | Disparar una vez |
-| 1 | Seleccionar la pistola táctica |
-| 2 | Seleccionar el rifle de asalto |
-| Esc | Liberar el cursor |
-| Botón INICIAR MISIÓN | Comenzar la partida |
-| Botón REINICIAR PARTIDA | Reiniciar después de victoria o derrota |
+| Movimiento del mouse | Orientar la cámara |
+| Clic izquierdo | Disparar una vez (mantener pulsado no dispara en automático) |
+| Tecla 1 | Seleccionar arma 1 (pistola) |
+| Tecla 2 | Seleccionar arma 2 (escopeta) |
+| R | Recargar el cargador desde la reserva del arma |
+| Shift | Correr |
+| Esc | Liberar el mouse / pausa |
 
-## 5. Requerimientos funcionales documentados
+---
 
-- **RF01 – Sistema de armas:** dos modelos 3D y selección con las teclas 1 y 2.
-- **RF02 – Munición:** contador independiente por arma; el disparo se bloquea al llegar a cero.
-- **RF03 – Escenario 3D:** recorrido con zona inicial, muros, obstáculos y punto de extracción.
-- **RF04 – Modelos de zombis:** enemigos cargados desde `zombi.glb`.
-- **RF05 – Detección y persecución:** los zombis se activan al entrar el jugador en su radio de detección.
-- **RF06 – Cámara FPS:** controles de mouse y desplazamiento WASD.
-- **RF07 – Impactos:** detección mediante `Raycaster`; cada zombi tiene dos puntos de resistencia.
-- **RF08 – Victoria:** alcanzar la zona señalizada de extracción.
-- **RF09 – Derrota:** contacto cercano con un zombi activo.
-- **RF10 – Reabastecimiento:** cajas coleccionables que recuperan munición del arma correspondiente.
-- **RF11 – Distribución de dificultad:** enemigos distribuidos por el escenario con distintos rangos y velocidades.
-- **RF12 – Repositorio y documentación:** código, modelos y documentación reunidos en este repositorio.
+## 5. Requisitos funcionales y su ubicación en el código
 
-## 6. Recursos externos, dependencias y créditos
+| Requisito | Implementación | Archivo |
+|---|---|---|
+| RF01 Sistema de armas: dos armas GLB, teclas 1/2, cambio visible en primera persona, un disparo por clic | `WeaponSystem.load()` / `equip()` / `tryShoot()`; evento `mousedown` ejecutado una sola vez por pulsación | `js/weapons.js`, `js/game.js` |
+| RF02 Munición: contador por arma, un consumo por disparo, no se dispara a 0, recogida obligatoria en cajas | `mag` / `def.reserve`, `reloadAuto()`, `onPickup('ammo')` | `js/weapons.js`, `js/game.js`, `js/config.js` |
+| RF03 Mundo tridimensional explorable con inicio, recorrido y zona final | `buildWorld()`: base, calle principal, callejón, mercado, helipuerto (≈24 × 168 m) | `js/world.js` |
+| RF04 Zombis con modelos GLB | `EnemySystem.load()` + `SkeletonUtils.clone()`, animaciones Idle / Walk / Run | `js/enemies.js` |
+| RF05 Comportamiento: estado inactivo y activo por rango de detección configurable | `STATE.IDLE → ALERT → CHASE → ATTACK → DEAD`; `CONFIG.zombies.detectionRange` (13 m) | `js/enemies.js`, `js/config.js` |
+| RF06 Cámara en primera persona, WASD y mouse; el arma sigue a la cámara | `Player.look()` con Pointer Lock, `Player.update()` con colisiones; el arma es hija de la cámara | `js/player.js`, `js/weapons.js`, `js/game.js` |
+| RF07 Disparos y colisiones: cada zombi tiene 2 puntos y muere exactamente al 2.º impacto | `Game.shoot()` con `THREE.Raycaster`; `EnemySystem.damage()` | `js/game.js`, `js/enemies.js` |
+| RF08 Progresión del nivel y zona de extracción con mensaje de victoria | `updateObjective()`, `world.exit`, `Game.win()` | `js/game.js`, `js/world.js` |
+| RF09 Derrota: contacto con un zombi provoca GAME OVER y detiene la partida | `Game.enemyAttack()` → `Game.gameOver()` | `js/game.js` |
+| RF10 Objetos coleccionables con efecto | `PickupSystem`: caja de munición, botiquín, potenciador de velocidad | `js/enemies.js`, `js/config.js` |
+| RF11 Dificultad equilibrada y completable | `spawnZones` en tres oleadas, munición limitada, `zombieSpeedFactor`, obstáculos | `js/world.js`, `js/game.js` |
+| RF12 Repositorio y explicación técnica | Este README + sección 5 con la trazabilidad de cada requisito | `README.md` |
 
-- **Three.js 0.160.0:** biblioteca de renderizado 3D mediante WebGL: https://threejs.org/
-- **PointerLockControls y GLTFLoader:** módulos incluidos en los ejemplos oficiales de Three.js 0.160.0.
-- **Modelos 3D:** `arma1.glb`, `arma2.glb` y `zombi.glb`, incluidos en `assets/models/`.
+**Valores ajustables** (todos en `js/config.js`): munición inicial (pistola 12 + reserva 18; escopeta 6
++ reserva 18), munición por caja (+24 pistola / +12 escopeta), rango de detección de zombis (13 m),
+resistencia de los zombis (2 puntos), velocidad y daño de los zombis, integridad del jugador (100)
+y duración del potenciador (9 s).
 
-Los archivos recibidos no incluyen información verificable sobre autor, página de descarga o licencia original de los tres modelos. Por ello, no se atribuye su autoría a Sketchfab, Kenney ni a una licencia Creative Commons sin confirmación. Completa esos créditos si dispones de las fuentes originales.
+---
 
-## 7. Repositorio de GitHub
+## 6. Fuentes de recursos externos
 
-Repositorio público: https://github.com/Dark202407/operacion-extraccion-fps
+| Recurso | Origen | Licencia / uso |
+|---|---|---|
+| `models/zombi.gltf` (+ `models/textures`, `models/buffers`) | Modelo «Soldier» de los ejemplos oficiales de three.js (`threejs.org/examples/models/gltf/Soldier.glb`), convertido de GLB a glTF para evitar restricciones de `file://` | Repositorio three.js — uso educativo según su licencia |
+| `models/pistola.glb`, `models/escopeta.glb` | Modelos propios generados con `tools_build_models.py` (primitivas agrupadas por material; nodos `cuerpo`, `corredera`, `cargador`, `boca`) | Propios |
+| `libs/three.min.js` | three.js r149 | MIT |
+| `libs/GLTFLoader.js`, `libs/SkeletonUtils.js` | three.js r147, convertidos a script clásico | MIT |
+| Texturas (asfalto, hormigón, ladrillo, óxido, madera, metal, cielo) | Generadas por código con `THREE.CanvasTexture` | Propias |
+| Sonidos (disparo, impacto, gruñido, recogida, victoria y derrota) | Sintetizados con la Web Audio API | Propios |
 
-## 8. Publicación opcional con GitHub Pages
+---
 
-1. Abre **Settings → Pages**.
-2. En **Build and deployment**, selecciona **Deploy from a branch**.
-3. Selecciona la rama `main` y la carpeta `/(root)`.
-4. Guarda los cambios y espera a que termine la publicación.
-5. Comprueba que el juego y los modelos carguen correctamente.
+## 7. Notas de ejecución
 
-URL prevista: https://Dark202407.github.io/operacion-extraccion-fps/
-
-La dirección solo funcionará después de activar GitHub Pages y completar la publicación.
-
-## 9. Comprobaciones antes de entregar
-
-- [ ] Repositorio público y código fuente accesible.
-- [ ] Se encuentran los tres modelos GLB en `assets/models/`.
-- [ ] README visible en la página principal.
-- [ ] Juego probado en un servidor local.
-- [ ] Movimiento, armas, disparos y munición probados.
-- [ ] Recolección, victoria y derrota comprobadas.
-- [ ] Créditos y licencias de los modelos completados con datos verificables.
-- [ ] GitHub Pages probado, si se entrega el enlace opcional.
-
-**Nota:** el video demostrativo de hasta tres minutos es un entregable separado y no forma parte de este repositorio.
+- Si el navegador bloquea la carga de los modelos al abrir el archivo directamente, usar la opción B
+  (servidor local).
+- El mouse solo controla la cámara después de hacer clic sobre la pantalla (Pointer Lock); `Esc` lo
+  libera.
+- Si el juego se abre pero no responde al mouse, hacer clic una vez sobre el canvas para capturarlo.
