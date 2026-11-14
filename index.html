@@ -1,50 +1,106 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Operación Extracción: Sobrevive al apocalipsis</title>
-  <link rel="stylesheet" href="style.css" />
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-      }
-    }
-  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Operación Extracción — Sobrevive al apocalipsis</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <!-- Mira central -->
-  <div id="crosshair">+</div>
-  <!-- Notificaciones -->
-  <div id="toast" class="hidden"></div>
-  <!-- HUD -->
-  <div id="hud">
-    <div class="hud-title">OPERACIÓN EXTRACCIÓN</div>
-    <div>Etapa: <span id="hud-stage" class="accent">ZONA INICIAL</span></div>
-    <div>Arma [1 / 2]: <span id="hud-weapon" class="accent">Pistola Táctica</span></div>
-    <div>Munición: <span id="hud-ammo" class="accent">8</span></div>
-    <div>Infectados eliminados: <span id="hud-kills">0</span> / <span id="hud-total-zombies">0</span></div>
-    <div>Extracción: <span id="hud-distance">0</span> m</div>
-  </div>
-  <!-- Pantalla de inicio -->
-  <div id="overlay" class="screen">
-    <h1>Operación Extracción</h1>
-    <p class="subtitle">Sobrevive al apocalipsis y alcanza la zona segura de extracción.</p>
-    <div class="controls-box">
-      <p><strong>W, A, S, D:</strong> Moverse | <strong>Mouse:</strong> Apuntar</p>
-      <p><strong>Clic izquierdo:</strong> Disparo único | <strong>Teclas 1 y 2:</strong> Cambiar arma</p>
-      <p><strong>Cajas naranja/azul:</strong> Reabastecimiento de munición</p>
+
+  <!-- ======================= HUD ======================= -->
+  <div id="hud" class="hidden">
+    <div id="hud-top">
+      <div id="objective">
+        <span class="tag">OBJETIVO</span>
+        <span id="objective-text">Alcanza la zona de extracción al norte</span>
+      </div>
+      <div id="zombies-left"><span class="tag">INFECTADOS</span><span id="zombies-count">0</span></div>
     </div>
-    <button id="btn-start">INICIAR MISIÓN</button>
+
+    <div id="hud-bottom">
+      <div id="ammo-panel">
+        <div id="weapon-name">PISTOLA</div>
+        <div id="ammo-line"><span id="ammo">0</span><span id="ammo-sep">/</span><span id="ammo-reserve">—</span></div>
+        <div id="ammo-note">Busca cajas de munición</div>
+      </div>
+      <div id="weapon-slots">
+        <div class="slot active" data-slot="1"><b>1</b><span>Pistola</span></div>
+        <div class="slot" data-slot="2"><b>2</b><span>Escopeta</span></div>
+      </div>
+      <div id="health-panel">
+        <div id="health-label">INTEGRIDAD</div>
+        <div id="health-bar"><i id="health-fill"></i></div>
+      </div>
+    </div>
+    <div id="damage-flash"></div>
+    <div id="hit-marker">✕</div>
+    <div id="pickup-toast"></div>
   </div>
-  <!-- Pantalla final -->
-  <div id="end-screen" class="screen hidden">
-    <h1 id="end-title">GAME OVER</h1>
-    <p id="end-subtitle">Has sido atrapado por los infectados.</p>
-    <button id="btn-restart">REINICIAR PARTIDA</button>
+
+  <div id="crosshair" class="hidden"><i></i><i></i><i></i><i></i></div>
+
+  <!-- ======================= PANTALLAS ======================= -->
+  <div id="screen-start" class="screen">
+    <div class="panel">
+      <p class="eyebrow">FPS · Three.js · Modelos GLB</p>
+      <h1>OPERACIÓN<br><em>EXTRACCIÓN</em></h1>
+      <p class="lead">El brote arrasó el sector industrial. Eres el último operativo dentro del perímetro.<br>
+        Cruza la zona infestada, administra tu munición y alcanza el punto de extracción.</p>
+      <div class="controls">
+        <div><b>W A S D</b><span>Moverse</span></div>
+        <div><b>Mouse</b><span>Orientar la cámara</span></div>
+        <div><b>Clic izquierdo</b><span>Disparar (1 bala por clic)</span></div>
+        <div><b>1 / 2</b><span>Pistola / Escopeta</span></div>
+      </div>
+      <button id="btn-start" class="btn">INICIAR MISIÓN</button>
+      <p class="hint">Haz clic sobre la ventana para capturar el mouse. <b>Esc</b> para liberarlo.</p>
+      <div id="load-status">Cargando modelos GLB…</div>
+    </div>
   </div>
-  <script type="module" src="main.js"></script>
+
+  <div id="screen-win" class="screen hidden">
+    <div class="panel">
+      <p class="eyebrow ok">EXTRACCIÓN CONFIRMADA</p>
+      <h2>¡MISIÓN COMPLETADA!</h2>
+      <p class="lead">Has llegado a la zona de extracción.</p>
+      <ul id="win-stats" class="stats"></ul>
+      <button id="btn-restart-win" class="btn">JUGAR DE NUEVO</button>
+    </div>
+  </div>
+
+  <div id="screen-over" class="screen hidden">
+    <div class="panel danger">
+      <p class="eyebrow bad">OPERATIVO CAPTURADO</p>
+      <h2>GAME OVER</h2>
+      <p class="lead">Un infectado te alcanzó. La extracción ha fallado.</p>
+      <ul id="over-stats" class="stats"></ul>
+      <button id="btn-restart-over" class="btn">REINTENTAR</button>
+    </div>
+  </div>
+
+  <div id="screen-pause" class="screen hidden">
+    <div class="panel small">
+      <h2>PAUSA</h2>
+      <p class="lead">Haz clic para volver a la acción.</p>
+    </div>
+  </div>
+
+  <div id="loading"><div class="bar"><i></i></div><span>Preparando el sector…</span></div>
+
+  <!-- ======================= LIBRERÍAS (locales, sin CDN) ======================= -->
+  <script src="libs/three.min.js"></script>
+  <script src="libs/GLTFLoader.js"></script>
+  <script src="libs/SkeletonUtils.js"></script>
+
+  <!-- ======================= CÓDIGO DEL JUEGO ======================= -->
+  <script src="js/config.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/world.js"></script>
+  <script src="js/weapons.js"></script>
+  <script src="js/enemies.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/hud.js"></script>
+  <script src="js/game.js"></script>
 </body>
 </html>
